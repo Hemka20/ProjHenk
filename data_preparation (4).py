@@ -1,6 +1,6 @@
 import pandas as pd
 import re
-#
+
 # 1. Prepare data (apply necessary cleaning, feature encoding, transformations and features)
 
 df_yelp = pd.read_csv('restaurants1/yelp.csv', encoding='utf-8')
@@ -15,7 +15,6 @@ print(f"Number of Zomato entries: {df_zomato.shape[0]}")
 print(f"Number of Zomato features: {df_zomato.shape[1]}")
 print(f"Zomato feature names: {df_zomato.columns.tolist()}")
 print(f"################################")
-
 
 # trim names of restaurants.
 def trim_names(df):
@@ -104,6 +103,25 @@ def remove_incomplete_address(df):
     print(f'{entries_removed} entries with incorrect address removed.')
     return df_removed
 
+# get city and states from address
+def get_city_and_states(df):
+    split_address = df['ADDRESS'].str.rsplit(', ', n=2, expand=True)
+    df['CITY'] = split_address[1]
+    df['STATE'] = split_address[2]
+    return df
+
+# get city frequency
+def get_city_frequency(df):
+    city_frequency = df['CITY'].value_counts()
+    df['CITY_FREQUENCY'] = df['CITY'].map(city_frequency)
+    return df
+
+# if it is a chain or not
+def is_chain(df):
+    chain_threshold = 3  # Set a threshold for considering a restaurant a chain
+    df['IS_CHAIN'] = df['NAME'].map(df['NAME'].value_counts()) > chain_threshold
+    return df
+
 
 def clean_df(df, output_path):
     df = trim_names(df)
@@ -116,6 +134,9 @@ def clean_df(df, output_path):
     df = remove_incorrect_phone_numbers(df)
     df = fix_nan_in_ratings(df)
     df = remove_incomplete_address(df)
+    df = get_city_and_states(df)
+    df = get_city_frequency(df)
+    df = is_chain(df)
     df.to_csv(output_path, encoding='utf-8')
 
 df_yelp_cleaned = df_yelp
@@ -124,4 +145,4 @@ print("Cleaning the Yelp dataset:")
 clean_df(df_yelp_cleaned, 'restaurants1/yelp.cleaned.csv')
 print('__________________________________________________________')
 print("Cleaning the Zomato dataset:")
-clean_df(df_yelp_cleaned, 'restaurants1/zomato.cleaned.csv')
+clean_df(df_zomato_cleaned, 'restaurants1/zomato.cleaned.csv')
