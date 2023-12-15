@@ -1,6 +1,6 @@
 import pandas as pd
 import re
-#
+
 # 1. Prepare data (apply necessary cleaning, feature encoding, transformations and features)
 
 df_yelp = pd.read_csv('restaurants1/yelp.csv', encoding='utf-8')
@@ -15,7 +15,6 @@ print(f"Number of Zomato entries: {df_zomato.shape[0]}")
 print(f"Number of Zomato features: {df_zomato.shape[1]}")
 print(f"Zomato feature names: {df_zomato.columns.tolist()}")
 print(f"################################")
-
 
 # trim names of restaurants.
 def trim_names(df):
